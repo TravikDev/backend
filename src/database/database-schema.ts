@@ -1,11 +1,40 @@
-import { serial, text, pgTable } from 'drizzle-orm/pg-core';
-
+import { relations } from 'drizzle-orm';
+import { serial, text, integer, pgTable } from 'drizzle-orm/pg-core';
+ 
 export const articles = pgTable('articles', {
-    id: serial('id').primaryKey(),
-    title: text('title'),
-    content: text('content'),
+  id: serial('id').primaryKey(),
+  title: text('title'),
+  content: text('content'),
 });
+ 
 
-export const databaseSchema = {
+export const addresses = pgTable('addresses', {
+    id: serial('id').primaryKey(),
+    street: text('street'),
+    city: text('city'),
+    country: text('country'),
+  });
+   
+  export const users = pgTable('users', {
+    id: serial('id').primaryKey(),
+    email: text('email').unique(),
+    name: text('name'),
+    password: text('password'),
+    addressId: integer('address_id')
+      .unique()
+      .references(() => addresses.id),
+  });
+   
+  export const usersAddressesRelation = relations(users, ({ one }) => ({
+    address: one(addresses, {
+      fields: [users.addressId],
+      references: [addresses.id],
+    }),
+  }));
+   
+  export const databaseSchema = {
     articles,
-};
+    addresses,
+    users,
+    usersAddressesRelation,
+  };

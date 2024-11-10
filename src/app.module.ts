@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ArticlesModule } from './articles/articles.module';
 import * as Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
 
 // Configurations
 // import databaseConfig from './config/database.config';
@@ -42,6 +43,7 @@ import { DatabaseModule } from './database/database.module';
     }),
   }),
     ArticlesModule,
+    UsersModule,
     // DatabaseModule,
   ],
   // controllers: [AppController],

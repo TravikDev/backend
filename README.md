@@ -108,7 +108,7 @@
 
 <!-- DRIZZLE -->
 
-**[] 55. Introduction to the Drizzle ORM with PostgreSQL
+[x] 55. Introduction to the Drizzle ORM with PostgreSQL
 
 **[] 56. One-to-one relationships with the Drizzle ORM
 

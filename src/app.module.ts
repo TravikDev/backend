@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ArticlesModule } from './articles/articles.module';
-import Joi from 'joi';
+import * as Joi from 'joi';
+import { DatabaseModule } from './database/database.module';
 
 // Configurations
 // import databaseConfig from './config/database.config';
@@ -24,17 +23,28 @@ import Joi from 'joi';
     // load: [configuration],
     // load: [databaseConfig],
 
-    // envFilePath: ['.env.development.local', '.env.development'],
-
     // --- Options
     // ignoreEnvFile: true,
     // isGlobal: true,
     // cache: true,
 
+    // envFilePath: ['.env.development.local', '.env.development'],
   }),
-    ArticlesModule
+  DatabaseModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => ({
+      host: configService.get('POSTGRES_HOST'),
+      port: configService.get('POSTGRES_PORT'),
+      user: configService.get('POSTGRES_USER'),
+      password: configService.get('POSTGRES_PASSWORD'),
+      database: configService.get('POSTGRES_DB'),
+    }),
+  }),
+    ArticlesModule,
+    // DatabaseModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  // controllers: [AppController],
+  // providers: [AppService],
 })
 export class AppModule { }

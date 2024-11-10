@@ -8,10 +8,9 @@ import {
 import { DatabaseOptions } from './database-options';
 import { Pool } from 'pg';
 import { DrizzleService } from './drizzle.service';
- 
+
 @Global()
 @Module({
-  exports: [DrizzleService],
   providers: [
     DrizzleService,
     {
@@ -28,5 +27,6 @@ import { DrizzleService } from './drizzle.service';
       },
     },
   ],
+  exports: [DrizzleService],
 })
-export class DatabaseModule extends ConfigurableDatabaseModule {}
+export class DatabaseModule extends ConfigurableDatabaseModule { }

@@ -17,9 +17,9 @@ export class ArticlesController {
     return this.articlesService.getById(id);
   }
 
-  @Post()
-  create(@Body() article: CreateArticleDto) {
-    return this.articlesService.create(article);
+  @Post(':authorId')
+  create(@Body() article: CreateArticleDto, @Param('authorId') authorId: number) {
+    return this.articlesService.create(article, authorId);
   }
 
   @Patch(':id')

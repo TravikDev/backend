@@ -1,64 +1,78 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { databaseSchema } from 'src/database/database-schema';
-import { PostgresErrorCode } from 'src/database/postgres-error-code.enum';
+import { PostgresErrorCode } from 'src/database/enum/postgres-error-code.enum';
 import { UserAlreadyExistsException } from './exceptions/user-already-exists.exception';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { eq } from 'drizzle-orm';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { hashValue, hashVerifyValue } from 'src/utils/hashing';
+import { user } from './entities/user.entity';
+import { ConfigService } from '@nestjs/config';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
 
-  constructor(private readonly drizzleService: DrizzleService) { }
+  constructor(
+    private readonly drizzleService: DrizzleService,
+  ) { }
 
-  async createWithAddress(user: any) {
-    // async createWithAddress(user: UserDto) {
+  async createUser(user: CreateUserDto) {
+    const { username, password: cleanPassword } = user
+    const password = hashValue(cleanPassword)
+
     return this.drizzleService.db.transaction(async (transaction) => {
-      const createdAddresses = await transaction
-        .insert(databaseSchema.addresses)
-        .values(user.address)
-        .returning();
-
-      const createdAddress = createdAddresses.pop();
-
       try {
         const createdUsers = await transaction
           .insert(databaseSchema.users)
-          .values({
-            name: user.name,
-            email: user.email,
-            password: user.password,
-            addressId: createdAddress.id,
-          })
+          .values({ username, password })
           .returning();
-        return createdUsers.pop();
+
+        console.log('createdUsers: ', createdUsers)
+
+        const { password: _, ...user } = createdUsers.pop();
+        return user
+
       } catch (error) {
-        if (
-          // isRecord(error) &&
-          error.code === PostgresErrorCode.UniqueViolation
-        ) {
-          throw new UserAlreadyExistsException(user.email);
-        }
+        if (error.code === PostgresErrorCode.UniqueViolation) throw new UserAlreadyExistsException(user.username);
         throw error;
       }
     });
   }
 
-  async getByEmail(email: string) {
-    const user = await this.drizzleService.db.query.users.findFirst({
-      with: {
-        address: true,
-      },
-      where: eq(databaseSchema.users.email, email),
-    });
+  async getUserById(id: number) {
+    const user = await this.drizzleService.db.query.users
+      .findFirst({ where: eq(databaseSchema.users.id, id) });
 
-    if (!user) {
-      throw new NotFoundException();
-    }
-
+    if (!user) throw new NotFoundException();
     return user;
   }
+
+  async getUserByUsername(username: string) {
+    const user = await this.drizzleService.db.query.users
+      .findFirst({ where: eq(databaseSchema.users.username, username) });
+
+    if (!user) throw new NotFoundException()
+    return user;
+  }
+
+  async updateUserById(id: number, user: UpdateUserDto) {
+
+    const { users } = databaseSchema
+
+    const updatedUsers = await this.drizzleService.db
+      .update(users)
+      .set(user)
+      .where(eq(users.id, id))
+      .returning();
+
+    if (updatedUsers.length === 0) throw new NotFoundException()
+    return updatedUsers.pop();
+  }
+
+
+
+
 
   // async getByEmail(email: string) {
   //   const allResults = await this.drizzleService.db

@@ -4,6 +4,7 @@ import { ArticlesModule } from './articles/articles.module';
 import * as Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 // Configurations
 // import databaseConfig from './config/database.config';
@@ -11,13 +12,22 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
-
+    isGlobal: true,
+    // envFilePath (dev / prod)
     validationSchema: Joi.object({
+
+      // DB
       POSTGRES_HOST: Joi.string().required(),
       POSTGRES_PORT: Joi.number().required(),
       POSTGRES_USER: Joi.string().required(),
       POSTGRES_PASSWORD: Joi.string().required(),
       POSTGRES_DB: Joi.string().required(),
+
+      // AUTH
+      JWT_REFRESH: Joi.string().required(),
+      JWT_REFRESH_EXP_TIME: Joi.string().required(),
+      JWT_ACCESS: Joi.string().required(),
+      JWT_ACCESS_EXP_TIME: Joi.string().required(),
     }),
 
     // --- Configurations
@@ -44,6 +54,7 @@ import { UsersModule } from './users/users.module';
   }),
     ArticlesModule,
     UsersModule,
+    AuthModule,
     // DatabaseModule,
   ],
   // controllers: [AppController],

@@ -1,40 +1,28 @@
-import { relations } from 'drizzle-orm';
-import { serial, text, integer, pgTable } from 'drizzle-orm/pg-core';
- 
-export const articles = pgTable('articles', {
-  id: serial('id').primaryKey(),
-  title: text('title'),
-  content: text('content'),
-});
- 
+import { pgTable } from 'drizzle-orm/pg-core';
+// import { relations } from 'drizzle-orm';
+import { user } from 'src/users/entities/user.entity';
+import { article } from 'src/articles/entities/article.entity'
 
-export const addresses = pgTable('addresses', {
-    id: serial('id').primaryKey(),
-    street: text('street'),
-    city: text('city'),
-    country: text('country'),
-  });
-   
-  export const users = pgTable('users', {
-    id: serial('id').primaryKey(),
-    email: text('email').unique(),
-    name: text('name'),
-    password: text('password'),
-    addressId: integer('address_id')
-      .unique()
-      .references(() => addresses.id),
-  });
-   
-  export const usersAddressesRelation = relations(users, ({ one }) => ({
-    address: one(addresses, {
-      fields: [users.addressId],
-      references: [addresses.id],
-    }),
-  }));
-   
-  export const databaseSchema = {
-    articles,
-    addresses,
+export const users = pgTable('users', user);
+export const articles = pgTable('articles', article)
+
+// export const addresses = pgTable('addresses', {
+//     id: serial('id').primaryKey(),
+//     street: text('street'),
+//     city: text('city'),
+//     country: text('country'),
+// });
+
+// export const usersAddressesRelation = relations(users, ({ one }) => ({
+//     address: one(addresses, {
+//         fields: [users.addressId],
+//         references: [addresses.id],
+//     }),
+// }));
+
+export const databaseSchema = {
     users,
-    usersAddressesRelation,
-  };
+    articles,
+    // addresses,
+    // usersAddressesRelation,
+};

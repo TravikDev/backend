@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Req, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -10,13 +9,13 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: any) {
     // create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createWithAddress(createUserDto);
+    return this.usersService.createUser(createUserDto);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.usersService.findAll();
-  // }
+  @Get(':id')
+  findAll(@Param('id') id: number) {
+    return this.usersService.getUserById(id);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

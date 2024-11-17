@@ -12,14 +12,27 @@ export class ArticlesService {
     private readonly drizzleService: DrizzleService
   ) { }
 
-  async create(article: CreateArticleDto) {
+  async create(article: CreateArticleDto, authorId: number) {
     const createdArticles = await this.drizzleService.db
       .insert(databaseSchema.articles)
-      .values(article)
+      .values({
+        authorId,
+        title: article.title,
+        content: article.content,
+      })
       .returning();
 
     return createdArticles.pop();
   }
+
+  // async create(article: CreateArticleDto) {
+  //   const createdArticles = await this.drizzleService.db
+  //     .insert(databaseSchema.articles)
+  //     .values(article)
+  //     .returning();
+
+  //   return createdArticles.pop();
+  // }
 
   getAll() {
     return this.drizzleService.db.select().from(databaseSchema.articles);
@@ -43,11 +56,11 @@ export class ArticlesService {
       .set(article)
       .where(eq(databaseSchema.articles.id, id))
       .returning();
- 
+
     if (updatedArticles.length === 0) {
       throw new NotFoundException();
     }
- 
+
     return updatedArticles.pop();
   }
 
@@ -56,13 +69,13 @@ export class ArticlesService {
       .delete(databaseSchema.articles)
       .where(eq(databaseSchema.articles.id, id))
       .returning();
- 
+
     if (deletedArticles.length === 0) {
       throw new NotFoundException();
     }
   }
 
-  
+
   // create(createArticleDto: CreateArticleDto) {
   //   return 'This action adds a new article';
   // }
